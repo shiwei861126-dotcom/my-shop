@@ -1,0 +1,38 @@
+{
+  "currency": "CNY",
+  "items": [
+    {
+      "id": 1,
+      "name": "【RSD】北斗牌24型可乐桶",
+      "description": "北斗牌24型啤酒用可乐桶设备，可以注入134、290、410、744型的制冷剂，冷藏后食用更佳。居家自娱可乐设备，提升可乐设备性能的最佳升级补品。\n\n作用：增速减少拉感，修改动力类型。\n\n⚠️ 定制物品，非商品质量问题不退换。\n📹 食用方法请抖音或B站搜「RSD可乐桶」寻找安装和展示视频。",
+      "image": "images/beidou-1.jpg",
+      "images": [
+        "images/beidou-1.jpg",
+        "images/beidou-2.jpg",
+        "images/beidou-3.jpg",
+        "images/beidou-4.jpg",
+        "images/beidou-5.jpg"
+      ],
+      "stock": 100,
+      "specs": [
+        {
+          "name": "通贩版",
+          "price": 998
+        },
+        {
+          "name": "高配版（三个钢件）",
+          "price": 1299
+        }
+      ],
+      "features": [
+        "可注入134、290、410、744型制冷剂",
+        "设备冷藏后食用更佳",
+        "居家制备可乐设备",
+        "提分增距，提升设备性能",
+        "现货，拍下后两天内发货",
+        "缺件及时联系补发"
+      ],
+      "defaultSpec": 0
+    }
+  ]
+}

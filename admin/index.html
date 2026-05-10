@@ -1,0 +1,562 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理 - 我的小店</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .admin-layout { display: flex; min-height: calc(100vh - 120px); }
+        .admin-sidebar {
+            width: 220px; background: #1e293b; color: white; padding: 20px 0; flex-shrink: 0;
+        }
+        .admin-sidebar a {
+            display: block; padding: 12px 24px; color: #94a3b8; text-decoration: none; transition: all 0.2s; font-size: 15px; cursor: pointer;
+        }
+        .admin-sidebar a:hover, .admin-sidebar a.active { background: #334155; color: white; }
+        .admin-main { flex: 1; padding: 24px; background: var(--bg); overflow-x: auto; }
+        .admin-main h2 { font-size: 22px; margin-bottom: 20px; }
+        .admin-page { display: none; }
+        .admin-page.active { display: block; }
+
+        .data-table {
+            width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow);
+        }
+        .data-table th, .data-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+        .data-table th { background: #f8fafc; font-weight: 600; color: var(--text-light); white-space: nowrap; }
+        .data-table tr:hover td { background: #f8fafc; }
+
+        .form-card {
+            background: white; border-radius: 10px; padding: 24px; box-shadow: var(--shadow); max-width: 700px;
+        }
+        .form-card .row { display: flex; gap: 16px; }
+        .form-card .row .form-group { flex: 1; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; font-family: inherit; box-sizing: border-box;
+        }
+        .form-group textarea { resize: vertical; }
+
+        .btn-sm {
+            padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s;
+        }
+        .btn-primary-sm { background: var(--primary); color: white; }
+        .btn-primary-sm:hover { background: var(--primary-dark); }
+        .btn-danger-sm { background: #ef4444; color: white; }
+        .btn-danger-sm:hover { background: #dc2626; }
+        .btn-success-sm { background: var(--success); color: white; }
+        .btn-success-sm:hover { background: #059669; }
+        .btn-warning-sm { background: #f59e0b; color: white; }
+        .btn-warning-sm:hover { background: #d97706; }
+
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .tag-paid { background: #fef3c7; color: #d97706; }
+        .tag-shipped { background: #dbeafe; color: #2563eb; }
+
+        .spec-editor { margin-top: 8px; }
+        .spec-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+        .spec-row input { flex: 1; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
+        .spec-row .del { color: #ef4444; cursor: pointer; font-size: 18px; }
+
+        .modal-overlay {
+            position: fixed; top:0;left:0;right:0;bottom:0; background: rgba(0,0,0,0.4);
+            display: flex; justify-content: center; align-items: center; z-index: 999;
+        }
+        .modal-box {
+            background: white; border-radius: 12px; padding: 28px;
+            max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;
+        }
+        .modal-box h3 { margin-bottom: 16px; }
+
+        .toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: #1e293b; color: white; padding: 12px 24px;
+            border-radius: 8px; font-size: 14px; z-index: 1000;
+            animation: fadeInUp 0.3s;
+        }
+        @keyframes fadeInUp { from { opacity:0; transform:translateX(-50%) translateY(10px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+
+        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 8px; }
+        .product-thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; }
+
+        .deploy-status {
+            padding: 16px; border-radius: 8px; margin: 16px 0;
+        }
+        .deploy-status.idle { background: #f8fafc; border: 1px solid var(--border); }
+        .deploy-status.deploying { background: #fef3c7; border: 1px solid #f59e0b; }
+        .deploy-status.success { background: #d1fae5; border: 1px solid var(--success); }
+        .deploy-status.error { background: #fee2e2; border: 1px solid var(--danger); }
+
+        .code-block {
+            background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 8px;
+            font-family: monospace; font-size: 13px; white-space: pre-wrap; overflow-x: auto; max-height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <header style="padding:16px 0;">
+        <div class="container">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <h1 style="font-size:20px;margin:0;">⚙️ 后台管理</h1>
+                <a href="../" style="color:white;font-size:14px;opacity:0.8;">← 返回前台</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="admin-layout container" style="max-width:1400px;">
+        <nav class="admin-sidebar" style="border-radius:10px;overflow:hidden;">
+            <a class="active" data-page="orders">📦 订单管理</a>
+            <a data-page="products">🏷️ 商品管理</a>
+            <a data-page="settings">⚙️ 系统设置</a>
+            <a data-page="deploy">🚀 部署管理</a>
+        </nav>
+
+        <main class="admin-main">
+            <!-- 订单管理 -->
+            <div class="admin-page active" id="page-orders">
+                <div class="header-actions">
+                    <h2>📦 订单管理</h2>
+                    <div>
+                        <button class="btn-sm btn-primary-sm" onclick="loadOrders()">🔄 刷新</button>
+                        <button class="btn-sm btn-danger-sm" onclick="clearOrders()">🗑️ 清空</button>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead><tr>
+                        <th>订单号</th><th>商品</th><th>金额</th><th>收货人</th><th>地址</th><th>状态</th><th>物流</th><th>操作</th>
+                    </tr></thead>
+                    <tbody id="orders-tbody"></tbody>
+                </table>
+            </div>
+
+            <!-- 商品管理 -->
+            <div class="admin-page" id="page-products">
+                <div class="header-actions">
+                    <h2>🏷️ 商品管理</h2>
+                    <button class="btn-sm btn-primary-sm" onclick="showProductModal()">➕ 新增商品</button>
+                </div>
+                <table class="data-table">
+                    <thead><tr>
+                        <th>ID</th><th>商品名</th><th>价格</th><th>规格</th><th>库存</th><th>图片</th><th>操作</th>
+                    </tr></thead>
+                    <tbody id="products-tbody"></tbody>
+                </table>
+                <div style="margin-top:16px;display:flex;gap:8px;">
+                    <button class="btn-sm btn-primary-sm" onclick="exportProducts()">📥 导出商品 JSON</button>
+                    <button class="btn-sm btn-warning-sm" onclick="document.getElementById('import-file').click()">📤 导入商品 JSON</button>
+                    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importProducts(event)">
+                    <span id="prod-save-status" style="font-size:13px;color:var(--text-light);align-self:center;"></span>
+                </div>
+            </div>
+
+            <!-- 系统设置 -->
+            <div class="admin-page" id="page-settings">
+                <h2>⚙️ 系统设置</h2>
+                <div class="form-card">
+                    <p style="font-size:14px;color:var(--text-light);margin-bottom:16px;">设置保存在浏览器本地，换设备后需要重新配置。</p>
+                    <div class="form-group">
+                        <label>飞书 Webhook 地址</label>
+                        <input type="text" id="set-webhook" placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/xxx">
+                        <p style="font-size:12px;color:var(--text-light);margin-top:4px;">用户下单后自动发送通知到飞书群</p>
+                    </div>
+                    <button class="btn-sm btn-primary-sm" onclick="saveSettings()">💾 保存设置</button>
+                    <span id="set-save-status" style="font-size:13px;color:var(--text-light);margin-left:12px;"></span>
+                </div>
+            </div>
+
+            <!-- 部署管理 -->
+            <div class="admin-page" id="page-deploy">
+                <h2>🚀 部署管理</h2>
+                <div class="form-card" style="max-width:100%;">
+                    <p style="font-size:14px;color:var(--text-light);margin-bottom:12px;">
+                        修改商品数据或图片后，需要重新部署到 Vercel 才能更新线上网站。
+                    </p>
+                    <div class="deploy-status idle" id="deploy-status">
+                        <strong>待部署</strong> — 点击下方按钮触发重新部署
+                    </div>
+                    <button class="btn-sm btn-primary-sm" onclick="triggerDeploy()" id="deploy-btn">🚀 一键重新部署</button>
+                    <span id="deploy-msg" style="font-size:13px;margin-left:12px;"></span>
+
+                    <hr style="margin:24px 0;border:none;border-top:1px solid var(--border);">
+                    <h4>当前商品数据预览</h4>
+                    <div class="code-block" id="products-preview"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 商品编辑弹窗 -->
+    <div id="product-modal" style="display:none;"></div>
+    <!-- 订单详情弹窗 -->
+    <div id="order-modal" style="display:none;"></div>
+
+    <script>
+        // ========== 工具 ==========
+        function toast(msg) {
+            const el = document.createElement("div"); el.className = "toast"; el.textContent = msg;
+            document.body.appendChild(el); setTimeout(() => el.remove(), 3000);
+        }
+        function getOrders() {
+            try { return JSON.parse(localStorage.getItem("shop_orders")||"[]"); } catch(e) { return []; }
+        }
+        function saveOrders(orders) {
+            localStorage.setItem("shop_orders", JSON.stringify(orders));
+        }
+
+        // ========== 侧栏切换 ==========
+        document.querySelectorAll(".admin-sidebar a").forEach(a => {
+            a.addEventListener("click", e => {
+                e.preventDefault();
+                document.querySelectorAll(".admin-sidebar a").forEach(x => x.classList.remove("active"));
+                a.classList.add("active");
+                document.querySelectorAll(".admin-page").forEach(p => p.classList.remove("active"));
+                document.getElementById("page-" + a.dataset.page).classList.add("active");
+                if (a.dataset.page === "deploy") showProductsPreview();
+            });
+        });
+
+        // ========== 订单管理 ==========
+        function loadOrders() {
+            const orders = getOrders();
+            const tbody = document.getElementById("orders-tbody");
+            if (orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-light);">暂无订单</td></tr>';
+                return;
+            }
+            tbody.innerHTML = orders.map(o => {
+                const st = o.status === "shipped" ? '<span class="tag tag-shipped">已发货</span>' : '<span class="tag tag-paid">已付款</span>';
+                return `<tr>
+                    <td style="font-size:12px;">${o.orderId}</td>
+                    <td>${o.productName||""}</td>
+                    <td style="font-weight:700;color:var(--danger);">¥${(o.total||0).toFixed(2)}</td>
+                    <td>${o.customer.name||""}<br><small style="color:var(--text-light);">${o.customer.phone||""}</small></td>
+                    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;">${o.customer.address||""}</td>
+                    <td>${st}</td>
+                    <td>${o.logistics||"<span style='color:var(--text-light);'>未发货</span>"}</td>
+                    <td>
+                        <button class="btn-sm btn-primary-sm" onclick="showOrderDetail('${o.orderId}')">详情</button>
+                        ${o.status !== "shipped" ? `<button class="btn-sm btn-success-sm" onclick="showShipModal('${o.orderId}')">发货</button>` : ""}
+                    </td>
+                </tr>`;
+            }).join("");
+        }
+
+        function showOrderDetail(orderId) {
+            const o = getOrders().find(x => x.orderId === orderId);
+            if (!o) return;
+            const el = document.getElementById("order-modal");
+            el.style.display = "flex"; el.className = "modal-overlay";
+            el.innerHTML = `<div class="modal-box">
+                <h3>📋 订单详情</h3>
+                <table style="width:100%;border-collapse:collapse;">
+                    <tr><td style="padding:6px 12px;font-weight:600;color:var(--text-light);">订单号</td><td>${o.orderId}</td></tr>
+                    <tr><td style="padding:6px 12px;font-weight:600;color:var(--text-light);">商品</td><td>${o.productName||""}</td></tr>
+                    <tr><td style="padding:6px 12px;font-weight:600;color:var(--text-light);">金额</td><td style="font-weight:700;color:var(--danger);">¥${(o.total||0).toFixed(2)}</td></tr>
+                    <tr><td style="padding:6px 12px;font-weight:600;color:var(--text-light);">收货人</td><td>${o.customer.name||""}</td></tr>
+                    <tr><td style="padding:6px 12px;font-weight:600;color:var(--text-light);">手机号</td><td>${o.customer.phone||""}</td></tr>
+                    <tr><td style="padding:6px 12px;font-weight:600;color:var(--text-light);">地址</td><td>${o.customer.address||""}</td></tr>
+                    ${o.customer.note?`<tr><td style="padding:6px 12px;font-weight:600;color:var(--text-light);">备注</td><td>${o.customer.note}</td></tr>`:""}
+                    <tr><td style="padding:6px 12px;font-weight:600;color:var(--text-light);">状态</td><td>${o.status==="shipped"?"已发货":"已付款"}</td></tr>
+                    <tr><td style="padding:6px 12px;font-weight:600;color:var(--text-light);">物流</td><td>${o.logistics||"未发货"}</td></tr>
+                    <tr><td style="padding:6px 12px;font-weight:600;color:var(--text-light);">时间</td><td>${new Date(o.createdAt).toLocaleString("zh-CN")}</td></tr>
+                </table>
+                <br><button class="btn-sm btn-primary-sm" onclick="document.getElementById('order-modal').style.display='none';">关闭</button>
+            </div>`;
+        }
+
+        function showShipModal(orderId) {
+            const el = document.getElementById("order-modal");
+            el.style.display = "flex"; el.className = "modal-overlay";
+            el.innerHTML = `<div class="modal-box">
+                <h3>📦 填写物流信息</h3>
+                <p style="font-size:14px;color:var(--text-light);margin-bottom:12px;">订单号：${orderId}</p>
+                <div class="form-group">
+                    <label>物流单号 / 备注</label>
+                    <input type="text" id="ship-input" placeholder="如：顺丰 SF1234567890">
+                </div>
+                <div style="display:flex;gap:10px;">
+                    <button class="btn-sm btn-success-sm" onclick="confirmShip('${orderId}')">✅ 确认发货</button>
+                    <button class="btn-sm" style="background:var(--border);" onclick="document.getElementById('order-modal').style.display='none';">取消</button>
+                </div>
+            </div>`;
+        }
+
+        function confirmShip(orderId) {
+            const logistics = document.getElementById("ship-input").value.trim();
+            const orders = getOrders();
+            const o = orders.find(x => x.orderId === orderId);
+            if (o) { o.logistics = logistics; o.status = "shipped"; saveOrders(orders); }
+            document.getElementById("order-modal").style.display = "none";
+            toast("✅ 已标记发货");
+            loadOrders();
+        }
+
+        function clearOrders() {
+            if (!confirm("确定清空所有订单记录？")) return;
+            saveOrders([]);
+            toast("✅ 已清空");
+            loadOrders();
+        }
+
+        // ========== 商品管理 ==========
+        function getProductsData() {
+            try { return JSON.parse(localStorage.getItem("shop_products_data")||"null"); } catch(e) { return null; }
+        }
+        function saveProductsData(data) {
+            localStorage.setItem("shop_products_data", JSON.stringify(data));
+        }
+
+        async function loadProducts() {
+            // 先尝试从 localStorage 加载，如果无则从 JSON 文件读取
+            let data = getProductsData();
+            if (!data) {
+                try {
+                    const resp = await fetch("../data/products.json");
+                    data = await resp.json();
+                    saveProductsData(data);
+                } catch(e) {
+                    data = { currency: "CNY", items: [] };
+                }
+            }
+            const tbody = document.getElementById("products-tbody");
+            if (!data.items || data.items.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-light);">暂无商品</td></tr>';
+                return;
+            }
+            // 显示保存状态
+            document.getElementById("prod-save-status").textContent = "（数据在浏览器本地，部署后才更新到线上）";
+            tbody.innerHTML = data.items.map(item => {
+                const specText = item.specs ? item.specs.map(s => s.name).join(", ") : "-";
+                const priceText = item.specs ? item.specs.map(s => "¥"+s.price).join(" / ") : "¥"+(item.price||0);
+                return `<tr>
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td style="font-weight:700;color:var(--danger);">${priceText}</td>
+                    <td style="font-size:13px;">${specText}</td>
+                    <td>${item.stock}</td>
+                    <td>${item.image ? `<img src="../${item.image}" class="product-thumb">` : "-"}</td>
+                    <td>
+                        <button class="btn-sm btn-primary-sm" onclick="editProduct(${item.id})">✏️</button>
+                        <button class="btn-sm btn-danger-sm" onclick="deleteProduct(${item.id})">🗑️</button>
+                    </td>
+                </tr>`;
+            }).join("");
+        }
+
+        function showProductModal(item) {
+            const isEdit = !!item;
+            const el = document.getElementById("product-modal");
+            el.style.display = "flex"; el.className = "modal-overlay";
+
+            const specsHtml = item && item.specs ? item.specs.map((s,i) =>
+                `<div class="spec-row"><input class="spec-n" value="${s.name}" placeholder="规格名"><input class="spec-p" type="number" step="0.01" value="${s.price}" placeholder="价格"><span class="del" onclick="this.parentElement.remove()">×</span></div>`
+            ).join("") : "";
+
+            el.innerHTML = `<div class="modal-box" style="max-width:600px;">
+                <h3>${isEdit ? "✏️ 编辑商品" : "➕ 新增商品"}</h3>
+                <div class="form-group"><label>商品名称</label><input type="text" id="p-name" value="${item?item.name:""}"></div>
+                <div class="row">
+                    <div class="form-group"><label>价格（无规格时）</label><input type="number" step="0.01" id="p-price" value="${item?item.price:0}"></div>
+                    <div class="form-group"><label>库存</label><input type="number" id="p-stock" value="${item?item.stock:100}"></div>
+                </div>
+                <div class="form-group"><label>商品描述</label><textarea id="p-desc" rows="4">${item?item.description:""}</textarea></div>
+                <div class="form-group"><label>首图路径</label><input type="text" id="p-img" value="${item?item.image:""}" placeholder="images/xxx.jpg"></div>
+                <div class="form-group"><label>多图路径（每行一张）</label><textarea id="p-imgs" rows="3" placeholder="images/1.jpg&#10;images/2.jpg">${item&&item.images?item.images.join("\n"):""}</textarea></div>
+                <div class="form-group"><label>规格选项</label><div class="spec-editor" id="spec-editor">${specsHtml}</div>
+                    <button class="btn-sm btn-primary-sm" style="margin-top:8px;" onclick="addSpec()">＋ 添加规格</button></div>
+                <div style="display:flex;gap:10px;margin-top:16px;">
+                    <button class="btn-sm btn-primary-sm" onclick="${isEdit?`saveProductEdit(${item.id})`:'saveProductNew()'}">💾 保存</button>
+                    <button class="btn-sm" style="background:var(--border);" onclick="document.getElementById('product-modal').style.display='none';">取消</button>
+                </div>
+            </div>`;
+        }
+
+        function addSpec() {
+            const e = document.getElementById("spec-editor");
+            const d = document.createElement("div"); d.className = "spec-row";
+            d.innerHTML = '<input class="spec-n" placeholder="规格名"><input class="spec-p" type="number" step="0.01" placeholder="价格"><span class="del" onclick="this.parentElement.remove()">×</span>';
+            e.appendChild(d);
+        }
+
+        function collectProductForm() {
+            const specs = Array.from(document.querySelectorAll(".spec-row")).map(r => ({
+                name: r.querySelector(".spec-n").value,
+                price: parseFloat(r.querySelector(".spec-p").value)||0
+            })).filter(s => s.name);
+            const imgs = document.getElementById("p-imgs").value.trim().split("\n").map(s=>s.trim()).filter(s=>s);
+            return {
+                name: document.getElementById("p-name").value,
+                price: parseFloat(document.getElementById("p-price").value)||0,
+                stock: parseInt(document.getElementById("p-stock").value)||0,
+                description: document.getElementById("p-desc").value,
+                image: imgs[0] || document.getElementById("p-img").value || "",
+                images: imgs,
+                specs: specs,
+                features: []
+            };
+        }
+
+        function saveProductNew() {
+            const data = getProductsData() || { currency: "CNY", items: [] };
+            const item = collectProductForm();
+            item.id = Date.now();
+            data.items.push(item);
+            saveProductsData(data);
+            document.getElementById("product-modal").style.display = "none";
+            toast("✅ 商品已创建（本地）");
+            loadProducts();
+        }
+
+        function saveProductEdit(id) {
+            const data = getProductsData() || { currency: "CNY", items: [] };
+            const idx = data.items.findIndex(i => i.id === id);
+            if (idx === -1) return;
+            const item = collectProductForm();
+            item.id = id;
+            data.items[idx] = { ...data.items[idx], ...item };
+            saveProductsData(data);
+            document.getElementById("product-modal").style.display = "none";
+            toast("✅ 商品已更新（本地）");
+            loadProducts();
+        }
+
+        function editProduct(id) {
+            const data = getProductsData();
+            if (!data) return;
+            const item = data.items.find(i => i.id === id);
+            if (item) showProductModal(item);
+        }
+
+        function deleteProduct(id) {
+            if (!confirm("确定删除？")) return;
+            const data = getProductsData();
+            if (!data) return;
+            data.items = data.items.filter(i => i.id !== id);
+            saveProductsData(data);
+            toast("✅ 已删除");
+            loadProducts();
+        }
+
+        // 导出/导入
+        function exportProducts() {
+            const data = getProductsData();
+            if (!data) return toast("⚠️ 没有商品数据");
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "products.json";
+            a.click();
+            URL.revokeObjectURL(a.href);
+            toast("✅ 已导出");
+        }
+
+        function importProducts(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (!data.items) throw new Error("格式不对");
+                    saveProductsData(data);
+                    toast("✅ 已导入 " + data.items.length + " 个商品");
+                    loadProducts();
+                } catch(err) {
+                    toast("⚠️ 导入失败: " + err.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = "";
+        }
+
+        // ========== 设置 ==========
+        function loadSettings() {
+            try {
+                const cfg = JSON.parse(localStorage.getItem("shop_config")||"{}");
+                document.getElementById("set-webhook").value = cfg.feishuWebhook || "";
+            } catch(e) {}
+        }
+        function saveSettings() {
+            const cfg = { feishuWebhook: document.getElementById("set-webhook").value.trim() };
+            localStorage.setItem("shop_config", JSON.stringify(cfg));
+            document.getElementById("set-save-status").textContent = "✅ 已保存";
+            setTimeout(() => document.getElementById("set-save-status").textContent = "", 2000);
+            toast("✅ 设置已保存到本地浏览器");
+        }
+
+        // ========== 部署管理 ==========
+        function showProductsPreview() {
+            const data = getProductsData();
+            const el = document.getElementById("products-preview");
+            if (!data || !data.items || data.items.length === 0) {
+                el.textContent = "暂无商品数据";
+                return;
+            }
+            el.textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function triggerDeploy() {
+            const btn = document.getElementById("deploy-btn");
+            const status = document.getElementById("deploy-status");
+            const msg = document.getElementById("deploy-msg");
+
+            btn.disabled = true;
+            btn.textContent = "⏳ 部署中...";
+            status.className = "deploy-status deploying";
+            status.innerHTML = "<strong>⏳ 正在部署...</strong> — 请稍候，这大约需要 30 秒";
+            msg.textContent = "";
+
+            try {
+                // 方案：使用 Vercel Deploy Hooks
+                // 需要用户在 Vercel 创建一个 Deploy Hook
+                // 目前先引导用户手动部署，或者用 Vercel Token 触发
+                const vercelToken = localStorage.getItem("vercel_token") || "";
+                if (!vercelToken) {
+                    // 显示手动部署指南
+                    status.className = "deploy-status idle";
+                    status.innerHTML = `
+                        <strong>📋 手动部署指南</strong>
+                        <p style="margin-top:8px;font-size:14px;">请在命令行中执行以下命令手动部署：</p>
+                        <div class="code-block" style="margin-top:8px;">cd "E:\\0.工作室\\网站"\nvercel --prod --yes</div>
+                        <p style="margin-top:8px;font-size:13px;color:var(--text-light);">
+                            或者设置 Vercel Token 实现一键部署（见下方说明）
+                        </p>
+                        <div class="form-group" style="margin-top:12px;">
+                            <label>Vercel Token（设置后可直接点部署）</label>
+                            <input type="password" id="vercel-token-input" value="${vercelToken}" placeholder="vcp_xxxxxxxxxxxx">
+                        </div>
+                        <button class="btn-sm btn-primary-sm" style="margin-top:8px;" onclick="saveVercelToken()">💾 保存 Token</button>
+                    `;
+                    msg.textContent = "⚠️ 请先设置 Vercel Token";
+                } else {
+                    // 用 Vercel API 触发部署
+                    // ... API 调用
+                    msg.textContent = "✅ Token 已保存，但 Vercel API 部署需要更多配置";
+                    status.className = "deploy-status idle";
+                    status.innerHTML = "<strong>✅ 手动部署</strong> — 请在命令行执行部署命令";
+                }
+            } catch(e) {
+                status.className = "deploy-status error";
+                status.innerHTML = `<strong>❌ 部署失败</strong><p>${e.message}</p>`;
+            }
+
+            btn.disabled = false;
+            btn.textContent = "🚀 一键重新部署";
+        }
+
+        function saveVercelToken() {
+            const token = document.getElementById("vercel-token-input").value.trim();
+            if (token) {
+                localStorage.setItem("vercel_token", token);
+                toast("✅ Token 已保存");
+            }
+        }
+
+        // ========== 初始化 ==========
+        loadOrders();
+        loadProducts();
+        loadSettings();
+    </script>
+</body>
+</html>
