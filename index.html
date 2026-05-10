@@ -24,9 +24,9 @@
         </section>
 
         <!-- 商品详情 & 下单 -->
-        <section id="order-section" class="hidden">
+                <section id="order-section" class="hidden">
             <div class="order-container">
-                <button id="back-btn" class="back-btn">← 返回商品列表</button>
+                <button id="back-btn" class="back-btn">&larr; 返回商品列表</button>
                 <div id="order-product-info">
                     <!-- 商品详情由 JS 填充 -->
                 </div>
@@ -37,7 +37,7 @@
                     <!-- 规格选择由 JS 渲染 -->
                 </div>
                 <div class="order-form">
-                    <h3>下单信息</h3>
+                    <h3>收货信息</h3>
                     <div class="form-group">
                         <label>数量</label>
                         <input type="number" id="order-qty" value="1" min="1" max="99">
@@ -58,14 +58,71 @@
                         <label>备注（可选）</label>
                         <textarea id="order-note" rows="2" placeholder="其他需要说明的内容"></textarea>
                     </div>
+                </div>
+
+                <!-- 支付区 -->
+                <div class="payment-section">
+                    <h3>支付</h3>
+                    <div class="payment-qr-area">
+                        <p class="payment-amount-label">需支付金额：<strong id="pay-amount-display">&yen;0.00</strong></p>
+                        <div class="payment-qrcode" id="payment-qrcode">
+                            <img src="qrcodes/wechat.png" alt="微信收款码" id="pay-qr-img">
+                        </div>
+                        <p class="payment-tip">请使用微信扫描上方二维码完成支付</p>
+                    </div>
+                    <div class="form-group">
+                        <label>上传支付凭证（截图）<span class="required">*</span></label>
+                        <div class="file-upload-area">
+                            <input type="file" id="pay-voucher" accept="image/*" capture="environment">
+                            <label for="pay-voucher" class="file-upload-label">
+                                <span class="upload-icon">&#x1F4F7;</span>
+                                <span>点击选择支付截图</span>
+                            </label>
+                            <div id="voucher-preview" class="voucher-preview hidden">
+                                <img id="voucher-img" src="" alt="支付凭证预览">
+                                <button type="button" id="remove-voucher" class="remove-voucher">&times;</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-submit-area">
                     <div class="order-total">
                         <span>合计：</span>
-                        <span id="order-total-price" class="total-price">¥0.00</span>
+                        <span id="order-total-price" class="total-price">&yen;0.00</span>
                     </div>
                     <button id="submit-order-btn" class="btn-primary">提交订单</button>
                 </div>
             </div>
         </section>
+
+        <!-- 成功弹窗 -->
+        <div id="success-modal" class="modal hidden">
+            <div class="modal-content success-content">
+                <div class="success-icon">&#x2705;</div>
+                <h2>订单提交成功！</h2>
+                <div class="success-order-info">
+                    <p>您的订单编号为：</p>
+                    <p class="order-id-display" id="order-id-display">ORD000000000000</p>
+                    <p class="success-tip">请保留此订单号，后续人工确认收款时将使用此编号</p>
+                </div>
+                <button id="continue-shopping-btn" class="btn-primary">继续购物</button>
+            </div>
+        </div>
+
+        <!-- 成功弹窗 -->
+        <div id="success-modal" class="modal hidden">
+            <div class="modal-content success-content">
+                <div class="success-icon">&#x2705;</div>
+                <h2>订单提交成功！</h2>
+                <div class="success-order-info">
+                    <p>您的订单编号为：</p>
+                    <p class="order-id-display" id="order-id-display">ORD000000000000</p>
+                    <p class="success-tip">请保留此订单号，后续人工确认收款时将使用此编号</p>
+                </div>
+                <button id="continue-shopping-btn" class="btn-primary">继续购物</button>
+            </div>
+        </div>
 
         <!-- 支付弹窗 -->
         <div id="payment-modal" class="modal hidden">

@@ -390,3 +390,138 @@ footer {
     .modal-content { padding: 24px; }
     .qrcode-container img { width: 220px; height: 220px; }
 }
+
+
+/* ========== 支付区 ========== */
+.payment-section {
+    padding: 20px 0;
+    margin-bottom: 16px;
+    border-top: 1px solid var(--border);
+}
+.payment-section h3 {
+    font-size: 18px;
+    margin-bottom: 16px;
+}
+.payment-qr-area {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.payment-amount-label {
+    font-size: 16px;
+    color: var(--text-light);
+    margin-bottom: 12px;
+}
+.payment-amount-label strong {
+    font-size: 28px;
+    color: var(--danger);
+}
+.payment-qrcode {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+.payment-qrcode img {
+    width: 220px;
+    height: 220px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+}
+.payment-tip {
+    font-size: 13px;
+    color: var(--text-light);
+}
+
+/* ========== 文件上传 ========== */
+.file-upload-area {
+    position: relative;
+}
+.file-upload-area input[type="file"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.file-upload-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px;
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-light);
+    font-size: 15px;
+}
+.file-upload-label:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--primary-light);
+}
+.file-upload-label .upload-icon {
+    font-size: 24px;
+}
+.voucher-preview {
+    margin-top: 12px;
+    position: relative;
+    display: inline-block;
+}
+.voucher-preview img {
+    max-width: 100%;
+    max-height: 240px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    display: block;
+}
+.remove-voucher {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    background: var(--danger);
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+/* ========== 提交区域 ========== */
+.order-submit-area {
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+/* ========== 成功弹窗 - 订单号 ========== */
+.success-order-info {
+    margin: 20px 0;
+    padding: 16px;
+    background: #f0fdf4;
+    border-radius: 8px;
+    border: 1px solid #bbf7d0;
+}
+.success-order-info p {
+    color: var(--text-light);
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+.success-order-info .order-id-display {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--primary);
+    text-align: center;
+    letter-spacing: 1px;
+    padding: 8px 0;
+    user-select: all;
+}
+.success-order-info .success-tip {
+    font-size: 13px;
+    color: var(--text-light);
+    margin-bottom: 0;
+}
