@@ -209,6 +209,15 @@ submitOrderBtn.addEventListener("click", async () => {
   // \u8bfb\u53d6\u652f\u4ed8\u51ed\u8bc1\u56fe\u7247\uff08base64\uff09
   let voucherB64 = "";
   try {
+    voucherB64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(payVoucher.files[0]);
+    });
+  } catch(e) { voucherB64 = ""; }
+
+  try {
     await fetch("/api/notify", {
       method:"POST",
       headers:{"Content-Type":"application/json"},
@@ -220,8 +229,7 @@ submitOrderBtn.addEventListener("click", async () => {
         voucherB64: voucherB64
       })
     });
-  } catch(e) { /* notify error, non-blocking */ }catch(e) { console.error("\u98de\u4e66\u901a\u77e5\u5931\u8d25", e); }
-  }
+  } catch(e) { /* notify error, non-blocking */ }
 
   // \u663e\u793a\u6210\u529f\u5f39\u7a97
   orderIdDisplay.textContent = orderId;
