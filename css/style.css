@@ -29,16 +29,18 @@ body {
 
 /* ========== Header ========== */
 header {
-    background: #fff;
+    background: #1a56db;
     padding: 0;
     text-align: center;
     line-height: 0;
+    width: 100%;
 }
 header .header-banner {
-    max-width: 100%;
+    width: 100%;
     height: auto;
     display: block;
     margin: 0 auto;
+    max-width: 800px;
 }
 
 /* ========== 商品列表 ========== */
@@ -387,7 +389,7 @@ footer {
 
 /* ========== 响应式 ========== */
 @media (max-width: 640px) {
-    header { padding: 0; }
+    header { padding: 0; background: #1a56db; }
     .product-grid { grid-template-columns: 1fr; }
     .order-container { padding: 20px; }
     .modal-content { padding: 24px; }
