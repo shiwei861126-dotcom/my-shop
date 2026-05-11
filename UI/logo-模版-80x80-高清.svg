@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80">
-  <rect width="80" height="80" fill="#f0f0f0"/>
-  <circle cx="40" cy="40" r="38" fill="white" stroke="#e53e3e" stroke-width="2" stroke-dasharray="10,8"/>
-  <line x1="40" y1="12" x2="40" y2="68" stroke="#e53e3e" stroke-width="1" opacity="0.4"/>
-  <line x1="12" y1="40" x2="68" y2="40" stroke="#e53e3e" stroke-width="1" opacity="0.4"/>
-  <text x="40" y="36" text-anchor="middle" fill="#999" font-size="10" font-family="sans-serif" opacity="0.6">贴在这里</text>
-  <text x="40" y="47" text-anchor="middle" fill="#999" font-size="10" font-family="sans-serif" opacity="0.6">(圆形裁剪)</text>
-  <text x="40" y="75" text-anchor="middle" fill="#aaa" font-size="7" font-family="sans-serif">80×80px（2x 高清）</text>
-</svg>
