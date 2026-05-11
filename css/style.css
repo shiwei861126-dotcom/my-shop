@@ -34,13 +34,14 @@ header {
     text-align: center;
     line-height: 0;
     width: 100%;
+    overflow: hidden;
 }
 header .header-banner {
     width: 100%;
     height: auto;
     display: block;
     margin: 0 auto;
-    max-width: 800px;
+    min-width: 1200px;
 }
 
 /* ========== 商品列表 ========== */
