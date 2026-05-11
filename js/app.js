@@ -177,7 +177,7 @@ removeVoucher.addEventListener("click", function() {
 submitOrderBtn.addEventListener("click", async () => {
   const name = orderName.value.trim(), phone = orderPhone.value.trim(), address = orderAddress.value.trim();
   if (!name||!phone||!address) return alert("\u8bf7\u586b\u5199\u5b8c\u6574\u7684\u6536\u8d27\u4fe1\u606f\uff08\u59d3\u540d\u3001\u624b\u673a\u53f7\u3001\u5730\u5740\uff09");
-  if (!/^1\\d{10}$/.test(phone)) return alert("\u8bf7\u8f93\u5165\u6b63\u786e\u7684\u624b\u673a\u53f7\uff0811\u4f4d\u6570\u5b57\uff09");
+  if (!/^1[0-9]{10}$/.test(phone)) return alert("\u8bf7\u8f93\u5165\u6b63\u786e\u7684\u624b\u673a\u53f7\uff0811\u4f4d\u6570\u5b57\uff09");
 
   // \u68c0\u67e5\u662f\u5426\u4e0a\u4f20\u4e86\u652f\u4ed8\u51ed\u8bc1
   if (!payVoucher.files || !payVoucher.files[0]) {
