@@ -209,43 +209,18 @@ submitOrderBtn.addEventListener("click", async () => {
   // \u8bfb\u53d6\u652f\u4ed8\u51ed\u8bc1\u56fe\u7247\uff08base64\uff09
   let voucherB64 = "";
   try {
-    voucherB64 = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(payVoucher.files[0]);
+    await fetch("/api/notify", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        orderId: orderId,
+        productName: orderData.productName,
+        total: total,
+        customer: orderData.customer,
+        voucherB64: voucherB64
+      })
     });
-  } catch(e) { voucherB64 = ""; }
-
-  // \u98de\u4e66\u901a\u77e5\uff08\u542b\u652f\u4ed8\u51ed\u8bc1\u56fe\u7247\uff09
-  const webhook = getWebhookUrl();
-  if (webhook) {
-    try {
-      await fetch("/api/notify", {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({
-          _webhook: webhook,
-          msg_type:"interactive",
-          card: {
-            header: { title: { tag:"plain_text", content:"\ud83d\uded2 \u65b0\u8ba2\u5355\u901a\u77e5" }, template:"red" },
-            elements: [
-              { tag:"div", text:{ tag:"lark_md", content:`**\u8ba2\u5355\u7f16\u53f7\uff1a** ${orderId}` }},
-              { tag:"div", text:{ tag:"lark_md", content:`**\u5546\u54c1\uff1a** ${orderData.productName}` }},
-              { tag:"div", text:{ tag:"lark_md", content:`**\u91d1\u989d\uff1a** \u00a5${total.toFixed(2)}` }},
-              { tag:"hr" },
-              { tag:"div", text:{ tag:"lark_md", content:`**\u6536\u8d27\u4eba\uff1a** ${name}` }},
-              { tag:"div", text:{ tag:"lark_md", content:`**\u624b\u673a\u53f7\uff1a** ${phone}` }},
-              { tag:"div", text:{ tag:"lark_md", content:`**\u5730\u5740\uff1a** ${address}` }},
-              ...(orderNote.value.trim() ? [{ tag:"div", text:{ tag:"lark_md", content:`**\u5907\u6ce8\uff1a** ${orderNote.value.trim()}` }}] : []),
-              { tag:"hr" },
-              ...(voucherB64 ? [{ tag:"div", text:{ tag:"lark_md", content:"**\u652f\u4ed8\u51ed\u8bc1\uff1a**" }},
-                { tag:"img", img_key:"tmp_pay_voucher", alt:{ tag:"plain_text", content:"\u652f\u4ed8\u51ed\u8bc1" }}
-              ] : []),
-            ]
-          }
-        })
-      });
-    } catch(e) { console.error("\u98de\u4e66\u901a\u77e5\u5931\u8d25", e); }
+  } catch(e) { /* notify error, non-blocking */ }catch(e) { console.error("\u98de\u4e66\u901a\u77e5\u5931\u8d25", e); }
   }
 
   // \u663e\u793a\u6210\u529f\u5f39\u7a97
