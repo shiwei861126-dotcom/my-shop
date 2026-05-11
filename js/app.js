@@ -221,9 +221,10 @@ submitOrderBtn.addEventListener("click", async () => {
   const webhook = getWebhookUrl();
   if (webhook) {
     try {
-      await fetch(webhook, {
+      await fetch("/api/notify", {
         method:"POST", headers:{"Content-Type":"application/json"},
         body: JSON.stringify({
+          _webhook: webhook,
           msg_type:"interactive",
           card: {
             header: { title: { tag:"plain_text", content:"\ud83d\uded2 \u65b0\u8ba2\u5355\u901a\u77e5" }, template:"red" },
