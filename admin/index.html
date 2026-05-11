@@ -474,6 +474,10 @@
         function loadSettings() {
             try {
                 const cfg = JSON.parse(localStorage.getItem("shop_config")||"{}");
+                if (!cfg.feishuWebhook) {
+                    cfg.feishuWebhook = "https://open.feishu.cn/open-apis/bot/v2/hook/c3a5b6fb-065e-4ef9-83f2-c481a22aff4b";
+                    localStorage.setItem("shop_config", JSON.stringify(cfg));
+                }
                 document.getElementById("set-webhook").value = cfg.feishuWebhook || "";
             } catch(e) {}
         }
